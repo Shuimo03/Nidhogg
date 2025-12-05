@@ -5,11 +5,18 @@
     sans-serif;
 }
 
+@variant dark (.dark &);
+
 body {
-  @apply m-0 min-h-screen bg-zinc-950 text-zinc-100 antialiased;
+  @apply m-0 min-h-screen bg-zinc-50 text-zinc-900 antialiased;
+  color-scheme: light;
+}
+
+.dark body {
+  @apply bg-zinc-950 text-zinc-100;
+  color-scheme: dark;
 }
 
 #root {
   @apply min-h-screen;
 }
-

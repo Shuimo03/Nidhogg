@@ -10,34 +10,45 @@ function useColorScheme() {
     const saved = window.localStorage.getItem('nidhogg.theme') as ColorScheme | null
     return saved ?? 'system'
   })
-  const [isDark, setIsDark] = useState(true)
 
+  // Apply theme immediately when scheme changes
   useEffect(() => {
     if (typeof window === 'undefined') return
+    
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-
-    const apply = () => {
-      const dark = scheme === 'dark' || (scheme === 'system' && media.matches)
-      setIsDark(dark)
-      if (dark) {
-        document.documentElement.classList.add('dark')
+    
+    const applyTheme = () => {
+      const isDark = scheme === 'dark' || (scheme === 'system' && media.matches)
+      const html = document.documentElement
+      
+      if (isDark) {
+        html.classList.add('dark')
       } else {
-        document.documentElement.classList.remove('dark')
+        html.classList.remove('dark')
       }
+      
+      // Force a repaint to ensure styles are applied
+      html.style.colorScheme = isDark ? 'dark' : 'light'
+      
+      // Debug: log theme state
+      console.log('[Theme] Scheme:', scheme, '| IsDark:', isDark, '| HasDarkClass:', html.classList.contains('dark'))
     }
 
-    apply()
+    // Apply immediately
+    applyTheme()
 
-    const listener = () => {
+    // Listen for system theme changes when using 'system' mode
+    const handleSystemThemeChange = () => {
       if (scheme === 'system') {
-        apply()
+        applyTheme()
       }
     }
 
-    media.addEventListener('change', listener)
-    return () => media.removeEventListener('change', listener)
+    media.addEventListener('change', handleSystemThemeChange)
+    return () => media.removeEventListener('change', handleSystemThemeChange)
   }, [scheme])
 
+  // Save to localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (scheme === 'system') {
@@ -47,11 +58,11 @@ function useColorScheme() {
     }
   }, [scheme])
 
-  return { scheme, setScheme, isDark }
+  return { scheme, setScheme }
 }
 
 function App() {
-  const { scheme, setScheme, isDark } = useColorScheme()
+  const { scheme, setScheme } = useColorScheme()
 
   const cycleScheme = () => {
     setScheme((prev) => {
@@ -73,7 +84,7 @@ function App() {
           </h2>
         </div>
         <div className="space-y-3">
-          <Card className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-transparent shadow-lg shadow-violet-500/5 dark:from-violet-500/10 dark:via-purple-500/5">
+          <Card className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-transparent shadow-lg shadow-violet-500/5 cursor-pointer transition-all duration-200 hover:shadow-xl hover:shadow-violet-500/10 hover:scale-[1.02] active:scale-[0.98] dark:from-violet-500/10 dark:via-purple-500/5">
             <CardBody className="px-4 py-3.5">
               <div className="flex items-center gap-3">
                 <div className="rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 p-1.5 ring-1 ring-violet-500/30">
@@ -85,8 +96,7 @@ function App() {
           </Card>
           <Button
             variant="flat"
-            disableAnimation
-            className="w-full justify-start rounded-xl border-0 bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800/30 dark:text-zinc-300 dark:hover:bg-zinc-800/50"
+            className="w-full justify-start rounded-xl border-0 bg-zinc-100 text-zinc-700 hover:bg-zinc-200 active:bg-zinc-300 active:scale-[0.98] transition-all duration-150 dark:bg-zinc-800/30 dark:text-zinc-300 dark:hover:bg-zinc-800/50 dark:active:bg-zinc-800/70"
             startContent={<Plus className="h-4 w-4" />}
           >
             New session
@@ -119,9 +129,8 @@ function App() {
             <Button
               isIconOnly
               variant="light"
-              disableAnimation
               size="sm"
-              className="min-w-8 h-8 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800/50"
+              className="min-w-8 h-8 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 active:bg-zinc-300 active:scale-95 transition-all duration-150 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800/50 dark:active:bg-zinc-700/50"
               onPress={cycleScheme}
             >
               <ThemeIcon className="h-4 w-4" />
@@ -129,9 +138,8 @@ function App() {
             <Button
               isIconOnly
               variant="light"
-              disableAnimation
               size="sm"
-              className="min-w-8 h-8 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800/50"
+              className="min-w-8 h-8 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 active:bg-zinc-300 active:scale-95 transition-all duration-150 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800/50 dark:active:bg-zinc-700/50"
             >
               <Settings className="h-4 w-4" />
             </Button>
@@ -164,8 +172,7 @@ function App() {
                   />
                   <Button
                     color="primary"
-                    disableAnimation
-                    className="h-[42px] rounded-lg bg-gradient-to-r from-violet-500 to-purple-500 px-5 font-medium text-white shadow-md shadow-violet-500/20 hover:from-violet-600 hover:to-purple-600"
+                    className="h-[42px] rounded-lg bg-gradient-to-r from-violet-500 to-purple-500 px-5 font-medium text-white shadow-md shadow-violet-500/20 hover:from-violet-600 hover:to-purple-600 active:from-violet-700 active:to-purple-700 active:scale-[0.97] active:shadow-lg transition-all duration-150"
                     endContent={<MessageSquare className="h-4 w-4" />}
                   >
                     Send
@@ -186,15 +193,14 @@ function App() {
           <Button
             size="sm"
             variant="flat"
-            disableAnimation
-            className="h-7 rounded-lg border-0 bg-zinc-100 text-xs text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800/30 dark:text-zinc-300 dark:hover:bg-zinc-800/50"
+            className="h-7 rounded-lg border-0 bg-zinc-100 text-xs text-zinc-700 hover:bg-zinc-200 active:bg-zinc-300 active:scale-[0.98] transition-all duration-150 dark:bg-zinc-800/30 dark:text-zinc-300 dark:hover:bg-zinc-800/50 dark:active:bg-zinc-800/70"
           >
             Select…
           </Button>
         </div>
 
         <div className="space-y-3">
-          <Card className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent shadow-lg shadow-amber-500/5">
+          <Card className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent shadow-lg shadow-amber-500/5 cursor-pointer transition-all duration-200 hover:shadow-xl hover:shadow-amber-500/10 hover:scale-[1.02] active:scale-[0.98]">
             <CardBody className="px-4 py-3.5">
               <div className="flex items-center gap-2.5">
                 <div className="rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20 p-1.5 ring-1 ring-amber-500/30">
@@ -211,7 +217,7 @@ function App() {
             </CardBody>
           </Card>
 
-          <Card className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent shadow-lg shadow-cyan-500/5">
+          <Card className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent shadow-lg shadow-cyan-500/5 cursor-pointer transition-all duration-200 hover:shadow-xl hover:shadow-cyan-500/10 hover:scale-[1.02] active:scale-[0.98]">
             <CardBody className="px-4 py-3.5">
               <div className="flex items-center gap-2.5">
                 <div className="rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 p-1.5 ring-1 ring-cyan-500/30">
