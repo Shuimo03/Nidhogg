@@ -18,12 +18,11 @@ from mcp.server import Server
 from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
-    CallToolRequest,
     CallToolResult,
     ServerCapabilities,
     TextContent,
     Tool,
-    ToolsCapability,
+    ToolsCapability, CallToolRequest,
 )
 
 # Import our data models and business logic
@@ -37,6 +36,40 @@ class NidhoggMCPServer:
         self.server = Server("nidhogg-mcp")
         self.save_command = SaveConversationCommand()
         self._setup_handlers()
+
+    async def _handle_call_tool(self, name: str, arguments: dict) -> CallToolResult:
+        """Handle tool calls from MCP clients."""
+        if name == "save_conversation":
+            try:
+                result = await self.save_command.execute(arguments)
+                return CallToolResult(
+                    content=[
+                        TextContent(
+                            type="text",
+                            text=f"Successfully saved conversation to: {result['conversation_path']}"
+                        )
+                    ]
+                )
+            except Exception as e:
+                return CallToolResult(
+                    content=[
+                        TextContent(
+                            type="text",
+                            text=f"Error saving conversation: {str(e)}"
+                        )
+                    ],
+                    isError=True
+                )
+        else:
+            return CallToolResult(
+                content=[
+                    TextContent(
+                        type="text",
+                        text=f"Unknown tool: {name}"
+                    )
+                ],
+                isError=True
+            )
 
     def _setup_handlers(self):
         """Set up MCP request handlers."""
@@ -88,39 +121,9 @@ class NidhoggMCPServer:
             ]
 
         @self.server.call_tool()
-        async def call_tool(request: CallToolRequest) -> CallToolResult:
+        async def call_tool(name: str, arguments: dict) -> CallToolResult:
             """Handle tool calls from MCP clients."""
-            if request.params.name == "save_conversation":
-                try:
-                    result = await self.save_command.execute(request.params.arguments)
-                    return CallToolResult(
-                        content=[
-                            TextContent(
-                                type="text",
-                                text=f"Successfully saved conversation to: {result['conversation_path']}"
-                            )
-                        ]
-                    )
-                except Exception as e:
-                    return CallToolResult(
-                        content=[
-                            TextContent(
-                                type="text",
-                                text=f"Error saving conversation: {str(e)}"
-                            )
-                        ],
-                        isError=True
-                    )
-            else:
-                return CallToolResult(
-                    content=[
-                        TextContent(
-                            type="text",
-                            text=f"Unknown tool: {request.params.name}"
-                        )
-                    ],
-                    isError=True
-                )
+            return await self._handle_call_tool(name, arguments)
 
     async def run(self):
         """Run the MCP server with stdio transport."""

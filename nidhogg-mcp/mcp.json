@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "nidhogg-mcp": {
+      "command": "uv",
+      "args": ["run", "python", "-m", "nidhogg_mcp"],
+      "cwd": "/Users/mac/code/Nidhogg/nidhogg-mcp",
+      "env": {
+        "PYTHONPATH": "/Users/mac/code/Nidhogg/nidhogg-mcp/src"
+      }
+    }
+  }
+}
