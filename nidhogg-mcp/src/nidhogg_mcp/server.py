@@ -7,6 +7,12 @@ conversation storage capabilities to Claude Code and other MCP clients.
 
 import asyncio
 import sys
+from pathlib import Path
+
+if __package__ in (None, ""):
+    package_root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(package_root))
+    __package__ = "nidhogg_mcp"
 
 from mcp.server import Server
 from mcp.server.models import InitializationOptions
@@ -14,8 +20,10 @@ from mcp.server.stdio import stdio_server
 from mcp.types import (
     CallToolRequest,
     CallToolResult,
+    ServerCapabilities,
     TextContent,
     Tool,
+    ToolsCapability,
 )
 
 # Import our data models and business logic
@@ -122,7 +130,10 @@ class NidhoggMCPServer:
                 write_stream,
                 InitializationOptions(
                     server_name="nidhogg-mcp",
-                    server_version="0.1.0"
+                    server_version="0.1.0",
+                    capabilities=ServerCapabilities(
+                        tools=ToolsCapability()
+                    )
                 )
             )
 
