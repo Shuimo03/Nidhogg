@@ -1,0 +1,18 @@
+{
+  "name": "nidhogg",
+  "version": "0.1.0",
+  "description": "Persistent conversation memory and context management system for Claude Code, enabling structured saving, recall, and long-term knowledge reuse.",
+  "author": {
+    "name": "Wu Liang"
+  },
+  "repository": "https://github.com/Shuimo03/Nidhogg",
+  "license": "MIT",
+  "keywords": [
+    "memory",
+    "context",
+    "persistence",
+    "conversation",
+    "knowledge",
+    "mcp"
+  ]
+}
