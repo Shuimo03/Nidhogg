@@ -89,8 +89,8 @@ claude --version
 2. Launch Claude Code
 
 ```bash
-/plugin marketplace add ./nidhogg-marketplace
-/plugin install nidhogg
+/plugin marketplace add ./Nidhogg/nidhogg-marketplace
+/plugin install nidhogg@nidhogg
 ```
 
 3. Check plugin commands; if `/nidhogg:save` appears, the installation is successful.

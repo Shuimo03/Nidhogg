@@ -88,8 +88,8 @@ claude --version
 2. 启动 claude code
 
 ```bash
-  /plugin marketplace add ./nidhogg-marketplace
-  /plugin install nidhogg
+  /plugin marketplace add ./Nidhogg/nidhogg-marketplace
+  /plugin install nidhogg@nidhogg
 ```
 
 3. 查看 plugin 命令，如果出现 /nidhogg:save  表示安装成功。
