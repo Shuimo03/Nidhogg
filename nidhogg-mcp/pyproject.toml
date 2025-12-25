@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "nidhogg-mcp"
 version = "0.1.0"
@@ -8,3 +12,9 @@ dependencies = [
     "mcp>=1.24.0",
     "pydantic>=2.12.5",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nidhogg_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/nidhogg_mcp", "README.md"]

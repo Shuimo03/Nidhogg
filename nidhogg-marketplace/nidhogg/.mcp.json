@@ -4,9 +4,9 @@
       "type": "stdio",
       "command": "uv",
       "args": ["run", "python", "-m", "nidhogg_mcp"],
-      "cwd": "/Users/mac/code/Nidhogg/nidhogg-mcp",
+      "cwd": "/your_project_root/nidhogg-mcp",
       "env": {
-        "PYTHONPATH": "/Users/mac/code/Nidhogg/nidhogg-mcp/src"
+        "PYTHONPATH": "/your_project_root/nidhogg-mcp/src"
       }
     }
   }

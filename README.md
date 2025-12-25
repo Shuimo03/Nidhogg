@@ -61,3 +61,71 @@ Nidhogg/
 │   └── nidhogg/              # Plugin 定义
 │
 └── prd/                      # 设计 / 产品文档
+```
+
+## 文件说明
+
+- `conversation.md`：按时间顺序保存完整对话，便于回溯与审计。
+- `meta.json`：结构化元数据（标题、摘要、标签、决策等），支撑检索与二次消费。
+- `chunks.jsonl`：分块后的纯文本，供向量化或索引重建；v0 可为空，按需生成。
+
+## Quickstart
+
+## 前置要求
+- 已安装 **Claude Code / claude CLI**
+- 已安装 **Python 3.10+**
+- 已安装 **uv**（用于运行 Python 环境与依赖）
+
+可选检查：
+```bash
+python --version
+uv --version
+claude --version
+```
+
+### 安装 Nidhogg 插件
+1. git clone https://github.com/Shuimo03/Nidhogg.git
+2. 启动 claude code
+
+```bash
+  /plugin marketplace add ./nidhogg-marketplace
+  /plugin install nidhogg
+```
+
+3. 查看 plugin 命令，如果出现 /nidhogg:save  表示安装成功。
+
+## .mcp.json 配置
+
+因为使用的是 stdio-server，需要确保 MCP 服务的 `cwd` 与 `PYTHONPATH` 指向
+`nidhogg-mcp` 目录。以下示例基于仓库结构：
+
+```
+<repo-root>/
+  nidhogg-mcp/
+  nidhogg-marketplace/
+    nidhogg/   # CLAUDE_PLUGIN_ROOT
+```
+
+举例说明：如果你在 `/Users/mac/code/prometheus` 下 clone 了 Nidhogg，
+需要修改 `/Users/mac/code/prometheus/nidhogg-marketplace/nidhogg/.mcp.json`。
+
+示例配置（插件目录内的 `.mcp.json`）：
+
+```json
+{
+  "mcpServers": {
+    "nidhogg-mcp": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "nidhogg_mcp"],
+      "cwd": "${CLAUDE_PLUGIN_ROOT}/../../nidhogg-mcp",
+      "env": {
+        "PYTHONPATH": "${CLAUDE_PLUGIN_ROOT}/../../nidhogg-mcp/src"
+      }
+    }
+  }
+}
+```
+
+如果你将插件目录移动到其他位置，请相应调整 `cwd` 与 `PYTHONPATH`，
+确保能定位到 `nidhogg-mcp`。

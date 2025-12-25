@@ -6,6 +6,7 @@ conversation storage capabilities to Claude Code and other MCP clients.
 """
 
 import asyncio
+import logging
 import sys
 from pathlib import Path
 
@@ -22,7 +23,7 @@ from mcp.types import (
     ServerCapabilities,
     TextContent,
     Tool,
-    ToolsCapability, CallToolRequest,
+    ToolsCapability,
 )
 
 # Import our data models and business logic
@@ -103,7 +104,7 @@ class NidhoggMCPServer:
                             "out_dir": {
                                 "type": "string",
                                 "description": "Output directory for conversations",
-                                "default": "./conversations"
+                                "default": "../"
                             },
                             "summary": {
                                 "type": "string",
@@ -127,6 +128,8 @@ class NidhoggMCPServer:
 
     async def run(self):
         """Run the MCP server with stdio transport."""
+        # Log to stderr so we don't interfere with MCP stdio protocol.
+        logging.info("Nidhogg MCP server starting (stdio). Waiting for client connection...", file=sys.stderr)
         async with stdio_server() as (read_stream, write_stream):
             await self.server.run(
                 read_stream,
@@ -148,9 +151,9 @@ def main():
         server = NidhoggMCPServer()
         asyncio.run(server.run())
     except KeyboardInterrupt:
-        print("\nShutting down Nidhogg MCP server...", file=sys.stderr)
+        logging.error("\nShutting down Nidhogg MCP server...", file=sys.stderr)
     except Exception as e:
-        print(f"Error running server: {e}", file=sys.stderr)
+        logging.error(f"Error running server: {e}", file=sys.stderr)
         sys.exit(1)
 
 
