@@ -93,7 +93,8 @@ class SaveConversationCommand:
                 raise ValueError(f"Message {i} missing required fields: role, content")
 
         # Extract optional arguments
-        out_dir = Path(arguments.get("out_dir", "./conversations"))
+        out_dir_arg = arguments.get("out_dir")
+        out_dir = Path(out_dir_arg) if out_dir_arg else Path.cwd().parent
         summary = arguments.get("summary", "")
         tags = arguments.get("tags", [])
 
@@ -123,4 +124,3 @@ class SaveConversationCommand:
             "conversation_id": conversation_id,
             "meta": meta.model_dump(mode='json')
         }
-
